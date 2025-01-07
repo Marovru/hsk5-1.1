@@ -17,7 +17,7 @@ function App() {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/tickets');
+        const response = await axios.get("https://hsk5-1-1.vercel.app/api/tickets");
         setTickets(response.data);
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
