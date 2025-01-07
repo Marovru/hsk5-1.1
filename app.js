@@ -1,25 +1,25 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://localhost:27017/hsk5', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
   .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('Error connecting to MongoDB:', err));  
+  .catch(err => console.error('Error connecting to MongoDB:', err));
 
 const questionSchema = new mongoose.Schema({
-  ticket: Number, // Изменено с ticketNumber на ticket
+  ticketNumber: Number,
   questions: [
     {
-      question: String, // Изменено с text на question
-      options: [String], // Список строк
-      answer: Number, // Индекс правильного ответа
+      text: String,
+      options: [{ text: String, isCorrect: Boolean }],
     },
   ],
 });
@@ -28,14 +28,15 @@ const Ticket = mongoose.model('Ticket', questionSchema);
 
 app.get('/api/tickets', async (req, res) => {
   try {
-    const tickets = await Ticket.find(); // Запрос к коллекции tickets
-    res.json(tickets); // Отправка данных в формате JSON
+    const tickets = await Ticket.find();
+    res.json(tickets);
   } catch (error) {
-    res.status(500).send('Error fetching tickets');
+    console.error('Error fetching tickets:', error);
+    res.status(500).json({ message: 'Error fetching tickets', error: error.message });
   }
 });
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

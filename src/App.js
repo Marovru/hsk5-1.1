@@ -17,8 +17,8 @@ function App() {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/tickets");
-        setTickets(response.data); // Сохраняем данные в состоянии
+        const response = await axios.get('http://localhost:5000/api/tickets');
+        setTickets(response.data);
       } catch (error) {
         console.error("Ошибка при получении данных:", error);
       }
@@ -30,6 +30,10 @@ function App() {
   const playRandomAudio = () => {
     const randomIndex = Math.floor(Math.random() * audioFiles.length); // Получаем случайный индекс
     const audio = new Audio(audioFiles[randomIndex]); // Создаем новый объект Audio с выбранным файлом
+    audio.onerror = (error) => {
+      console.error("Ошибка при загрузке аудио:", error);
+      alert("Ошибка при воспроизведении аудио.");
+    };
     audio.play(); // Проигрываем аудио
   };
 
@@ -95,7 +99,9 @@ function App() {
   return (
     <div className="App">
       <h1>HSK 5 Questions</h1>
-      {currentTicketIndex === null ? (
+      {tickets.length === 0 ? (
+        <div>Загрузка...</div>
+      ) : currentTicketIndex === null ? (
         <div>
           <h2>Нажмите кнопку, чтобы начать:</h2>
           <button onClick={handleStartTicket}>Начать</button>
@@ -111,14 +117,14 @@ function App() {
             Ticket {tickets[currentTicketIndex].ticket} - Вопрос {currentQuestionIndex + 1}
           </h2>
           <p>{tickets[currentTicketIndex].questions[currentQuestionIndex].question}</p>
-          
+
           {/* Таймер */}
           {timerActive && (
             <div className="timer-container">
               <div className="timer-text">{timer}</div>
             </div>
           )}
-          
+
           <div>
             {tickets[currentTicketIndex].questions[currentQuestionIndex].options.map((option, index) => (
               <button key={index} onClick={() => handleAnswer(index)}>
